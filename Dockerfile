@@ -28,7 +28,8 @@ ENV PYTHONFAULTHANDLER=1 \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6" \
-    TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
+    TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
+    ENABLE_FLASH_ATTN="true"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -75,6 +76,8 @@ RUN pip3 install -r requirements.txt
 
 # Install additional dependencies for streaming and voice cloning
 RUN pip3 install yt-dlp openai-whisper
+
+RUN pip install flash-attn==2.7.3
 
 # Copy application code
 COPY ./app /app/app

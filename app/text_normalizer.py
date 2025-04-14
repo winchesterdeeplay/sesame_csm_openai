@@ -7,9 +7,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class TextNormalizer:
     """Text normalization utilities for TTS."""
-    
+
     # Common English contractions mapping
     CONTRACTIONS = {
         "don't": "dont",
@@ -53,7 +54,7 @@ class TextNormalizer:
         "weren't": "werent",
         "wasn't": "wasnt",
     }
-    
+
     # Common abbreviations to expand
     ABBREVIATIONS = {
         "Mr.": "Mister",
@@ -69,7 +70,7 @@ class TextNormalizer:
         "i.e.": "that is",
         "approx.": "approximately",
     }
-    
+
     # Simple number words for common numbers
     NUMBER_WORDS = {
         "0": "zero",
@@ -105,45 +106,45 @@ class TextNormalizer:
         "1000000": "one million",
         "1000000000": "one billion",
     }
-    
+
     @classmethod
     def normalize_text(cls, text: str) -> str:
         """
         Normalize text for TTS: handle contractions, punctuation, and special cases.
-        
+
         Args:
             text: Input text to normalize
-            
+
         Returns:
             Normalized text ready for TTS
         """
         if not text:
             return text
-            
+
         # Log original text for debugging
         logger.debug(f"Normalizing text: '{text}'")
-        
+
         # Remove voice instructions in square brackets
-        text = re.sub(r'\[.*?\]', '', text)
-        
+        text = re.sub(r"\[.*?\]", "", text)
+
         # Handle contractions - preserving case sensitivity
         for contraction, replacement in cls.CONTRACTIONS.items():
             # Case insensitive replacement
-            text = re.sub(r'\b' + re.escape(contraction) + r'\b', replacement, text, flags=re.IGNORECASE)
-        
+            text = re.sub(r"\b" + re.escape(contraction) + r"\b", replacement, text, flags=re.IGNORECASE)
+
         # Expand common abbreviations
         for abbr, expanded in cls.ABBREVIATIONS.items():
             text = text.replace(abbr, expanded)
-        
+
         # Handle numbers - only convert standalone numbers
         def replace_number(match):
             number = match.group(0)
             if number in cls.NUMBER_WORDS:
                 return cls.NUMBER_WORDS[number]
             return number
-            
-        text = re.sub(r'\b\d+\b', replace_number, text)
-        
+
+        text = re.sub(r"\b\d+\b", replace_number, text)
+
         # Replace problematic symbols
         text = text.replace("&", " and ")
         text = text.replace("%", " percent ")
@@ -153,41 +154,42 @@ class TextNormalizer:
         text = text.replace("€", " euro ")
         text = text.replace("£", " pound ")
         text = text.replace("¥", " yen ")
-        
+
         # Handle dates in MM/DD/YYYY format
-        text = re.sub(r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b', r'\1 \2 \3', text)
-        
+        text = re.sub(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", r"\1 \2 \3", text)
+
         # Fix excessive spaces
-        text = re.sub(r'\s+', ' ', text).strip()
-        
+        text = re.sub(r"\s+", " ", text).strip()
+
         # Ensure sentence ends with punctuation
-        if not text[-1] in ['.', '!', '?', ';', ':', ',']:
-            text = text + '.'
-            
+        if not text[-1] in [".", "!", "?", ";", ":", ","]:
+            text = text + "."
+
         logger.debug(f"Normalized text: '{text}'")
         return text
-    
+
     @classmethod
     def split_into_sentences(cls, text: str) -> list:
         """
         Split text into sentences for better TTS performance.
-        
+
         Args:
             text: Input text to split
-            
+
         Returns:
             List of sentences
         """
         # Normalize first
         text = cls.normalize_text(text)
-        
+
         # Split on sentence boundaries
-        sentences = re.split(r'(?<=[.!?])\s+', text)
-        
+        sentences = re.split(r"(?<=[.!?])\s+", text)
+
         # Remove empty sentences
         sentences = [s for s in sentences if s.strip()]
-        
+
         return sentences
+
 
 def clean_text_for_tts(text: str) -> str:
     """Clean and normalize text for TTS processing."""
